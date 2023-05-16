@@ -1,0 +1,26 @@
+
+include "root" {
+  path = find_in_parent_folders()
+}
+
+/*dependencies {
+  paths = ["../vpc", "../ad"]
+}*/
+
+dependency "ad" {
+  config_path = "../ad"
+}
+
+dependency "vpc" {
+  config_path = "../vpc"
+}
+
+inputs = {
+  bundle_id         = "wsb-8vbljg4r6"
+  compute_type_name = "STANDARD"
+
+  directory_id = dependency.ad.outputs.ad_domain_id
+  region       = dependency.vpc.outputs.region
+  vpc_id       = dependency.vpc.outputs.vpc_id
+  subnet_ids   = dependency.vpc.outputs.private_subnets
+}
