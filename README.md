@@ -4,7 +4,7 @@ Hi 👋 My name is Raza Lakhani
 Cloud Architect
 ---------------
 
-I'm a cloud architect hell-bent on simplifying complex tasks through the use of easy to understand IaC code, majorly Terraform.
+I'm a cloud architect hell-bent on simplifying complex tasks through the use of easy to understand IaC, majorly Terraform.
 
 * 🌍  I'm based in Karachi, Pakistan
 * ✉️  You can contact me at [r.lakhani11@gmail.com](mailto:r.lakhani11@gmail.com)
