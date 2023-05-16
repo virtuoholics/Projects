@@ -10,8 +10,7 @@ I'm a cloud architect hell-bent on simplifying complex tasks through the use of 
 *   ✉️  You can contact me at [r.lakhani11@gmail.com](mailto:r.lakhani11@gmail.com)
 *   🧠  I'm learning Advanced Kubernetes, Python and advanced Linux
 *   🤝  I'm open to collaborating on AWS, Terraform, Terragrunt and Python
-*   ⚡  I'm someone who prioritizes family over everything else. No second thoughts!<a href="https://www.github.com/virtuoholics" target="_blank" rel="noreferrer"><img
-                  src="https://img.shields.io/github/followers/virtuoholics?logo=github&style=for-the-badge&color=0891b2&labelColor=1c1917" /></a>### Skills 
+*   ⚡  I'm someone who prioritizes family over everything else. No second thoughts!### Skills 
 <p align="left">
 <a href="https://git-scm.com/" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/skills/git-colored.svg" width="36" height="36" alt="Git" /></a>
 <a href="https://www.python.org/" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/skills/python-colored.svg" width="36" height="36" alt="Python" /></a>
