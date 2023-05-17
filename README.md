@@ -9,7 +9,7 @@ I'm a cloud architect hell-bent on simplifying complex tasks through the use of 
 * 🌍  I'm based in Karachi, Pakistan
 * ✉️  You can contact me at [r.lakhani11@gmail.com](mailto:r.lakhani11@gmail.com)
 * 🧠  I'm learning Advanced Kubernetes, Python and advanced Linux
-* 🤝  I'm open to collaborating on AWS, Terraform, Terragrunt and Python
+* 🤝  I'm open to collaborating on AWS, Terraform, Terragrunt, Python and Kubernetes.
 * ⚡  I'm someone who prioritizes family over everything else. No second thoughts!
 
 ### Skills
