@@ -2,7 +2,7 @@ resource "null_resource" "vault_exec" {
   provisioner "local-exec" {
     command = <<EOH
 kubectl exec -n app1 -it vault-0 -- /bin/sh
-vault kv put secret/db-pass DB_PASSWORD="postgres"
+vault kv put secret/db-pass DB_PASSWORD="password"
 vault auth enable kubernetes
 vault write auth/kubernetes/config \
   kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"

@@ -20,7 +20,7 @@ resource "vault_kv_secret_v2" "db_password" {
   name  = "db-password"
   data_json = jsonencode(
     {
-      "DB_PASSWORD" : "postgres"
+      "DB_PASSWORD" : "password"
     }
   )
 }
