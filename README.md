@@ -1,7 +1,7 @@
 Hi 👋 My name is Raza Lakhani
 =============================
 
-(Please check out the projects organized in their respective titular branches.)
+(Please check out the demo projects organized in their respective titular branches.)
 
 Cloud Architect
 ---------------
