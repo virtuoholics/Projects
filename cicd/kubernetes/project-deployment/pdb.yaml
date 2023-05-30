@@ -1,0 +1,11 @@
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: app1
+  namespace: app1
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      run: app1

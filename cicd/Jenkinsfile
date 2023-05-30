@@ -1,0 +1,69 @@
+pipeline {
+  agent { label 'linux' }
+  options {
+    skipDefaultCheckout(true)
+  }
+  environment {
+    AWS_ACCESS_KEY_ID     = credentials('aws-secret-key-id')
+    AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+    AWS_ACCOUNT_ID = credentials('aws-account-id')
+  }
+  stages {
+    stage('Clean Slate') {
+      steps {
+        cleanWs()
+      }
+    }
+    stage('Credentials') {
+      steps {
+        checkout scm
+        sh "echo $AWS_ACCESS_KEY_ID"
+        sh "echo $AWS_SECRET_ACCESS_KEY"
+      }
+    }
+    stage('Application Build') {
+      steps {
+        sh('cd nodejs-app && npm install')
+      }
+    }
+    stage('Repo Build') {
+      steps {
+        script {
+          sh('cd pipeline/ecr && terragrunt run-all init --terragrunt-non-interactive && terragrunt run-all apply --terragrunt-non-interactive')
+        }        
+      }
+    }
+    stage('Image Build') {
+      steps {
+        sh 'docker build -t sample-node:test .'
+      }
+    }
+    stage('Image Scan') {
+      steps {
+        sh 'curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/asff.tpl > asff.tpl'
+        sh 'trivy image sample-node:test -f template -t "@asff.tpl" -s HIGH,CRITICAL -o report.asff --exit-code 1 --vuln-type os,library'
+        sh 'aws s3 cp report.asff s3://devsecops-project-analysis-bucket/Trivy/'       
+      }
+    }
+    stage('Image Push') {
+      steps {
+        sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com'
+        sh 'docker tag sample-node:test $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/devsecops:node'
+        sh 'docker push $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/devsecops:node'        
+      }
+    }
+    stage('Kubernetes') {
+      steps {
+        script {
+          sh('aws eks update-kubeconfig --name devsecops-project --region us-east-1')
+          sh('cd kubernetes/project-deployment && terragrunt run-all init --terragrunt-non-interactive && terragrunt run-all apply --terragrunt-non-interactive')
+          sh('cd kubernetes/project-deployment && kubectl apply -f vault.yaml -f application.yaml')
+          sh('cd kubernetes/project-deployment && python3 certs-updater.py')
+          sh('cd kubernetes/project-deployment && kubectl apply -f nlb.yaml -f hpa.yaml -f pdb.yaml')
+          sh('cd kubernetes/dns/records && python3 dns-updater.py')
+          sh('cd kubernetes/dns && terragrunt run-all init --terragrunt-non-interactive && terragrunt run-all apply --terragrunt-non-interactive')
+        }
+      }
+    }
+  }
+}

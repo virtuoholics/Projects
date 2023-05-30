@@ -1,0 +1,86 @@
+provider "vault" {
+  address = "https://${aws_route53_record.vault.name}/"
+  token   = "VAULT ROOT TOKEN"
+}
+
+resource "vault_mount" "rds_connection" {
+  path        = "database/creds/rds-role"
+  type        = "kv"
+  options     = { version = "2" }
+  description = "KV Version 2 secret engine mount"
+}
+
+resource "vault_kv_secret_backend_v2" "rds_connection" {
+  mount        = vault_mount.rds_connection.path
+  max_versions = 1
+}
+
+resource "vault_kv_secret_v2" "db_password" {
+  mount = vault_mount.rds_connection.path
+  name  = "db-password"
+  data_json = jsonencode(
+    {
+      "DB_PASSWORD" : "postgres"
+    }
+  )
+}
+
+resource "vault_policy" "rds_policy" {
+  name = "rds-policy"
+
+  policy = <<EOF
+path "database/creds/rds-role" {
+  capabilities = ["read"]
+}
+EOF
+}
+
+resource "vault_auth_backend" "aws" {
+  type        = "aws"
+  description = "AWS authentication backend"
+}
+
+resource "vault_aws_auth_backend_role" "rds_role" {
+  backend             = vault_auth_backend.aws.id
+  role                = "rds-role"
+  auth_type           = "ec2"
+  bound_iam_role_arns = [aws_iam_role.rds.arn]
+  token_policies      = [vault_policy.rds_policy.name]
+
+  depends_on = [
+    aws_iam_role.rds
+  ]
+}
+
+resource "vault_auth_backend" "userpass" {
+  type        = "userpass"
+  description = "User Authentication Backend"
+}
+
+resource "vault_generic_endpoint" "alex" {
+  path = "auth/userpass/users/alex"
+
+  data_json = <<EOT
+{
+  "policies": ["admins"],
+  "password": "changeme"
+}
+EOT
+
+  depends_on = [
+    vault_auth_backend.userpass
+  ]
+}
+
+resource "vault_policy" "user_pw_change" {
+  name = "user-pw-change"
+
+  policy = <<EOF
+path "auth/userpass/users" {
+  capabilities = ["update"]
+  allowed_parameters = {
+    "password" = []
+  }
+}
+EOF
+}

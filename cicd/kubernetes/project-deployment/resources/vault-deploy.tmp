@@ -1,0 +1,39 @@
+resource "null_resource" "vault_exec" {
+  provisioner "local-exec" {
+    command = <<EOH
+kubectl exec -n app1 -it vault-0 -- /bin/sh
+vault kv put secret/db-pass DB_PASSWORD="postgres"
+vault auth enable kubernetes
+vault write auth/kubernetes/config \
+  kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"
+
+vault policy write db-password - <<EOF
+path "secret/data/db-pass" {
+  capabilities = ["read"]
+}
+EOF
+
+vault write auth/kubernetes/role/postgres \
+  bound_service_account_names=app1 \
+  bound_service_account_namespaces=app1 \
+  policies=db-password \
+  ttl=20m
+exit
+EOH
+  }
+
+  depends_on = [
+    null_resource.devsecops_project_vault,
+  ]
+}
+
+resource "null_resource" "vault_spc" {
+  provisioner "local-exec" {
+    command = "kubectl apply -f ./spc-vault.yaml"
+  }
+
+  depends_on = [
+    #coder_agent.vault_exec,
+    #null_resource.vault_exec,
+  ]
+}

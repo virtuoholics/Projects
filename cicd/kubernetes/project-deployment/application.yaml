@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app1
+  namespace: app1
+spec:
+  selector:
+    matchLabels:
+      run: app1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: app1
+    spec:
+      serviceAccountName: app1
+      containers:
+        - name: app1
+          image: 111122223333.dkr.ecr.us-east-1.amazonaws.com/devsecops:node
+          ports:
+            - containerPort: 3000
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1000Mi
+            requests:
+              cpu: 250m
+              memory: 500Mi
+          volumeMounts:
+            - name: vault-secrets
+              mountPath: /mnt/rds-secret
+              readOnly: true
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dbpass
+                  key: DB_PASSWORD
+      volumes:
+        - name: vault-secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: vault-secrets
